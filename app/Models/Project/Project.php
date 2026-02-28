@@ -6,6 +6,7 @@ use App\Models\Label\Label;
 use App\Models\ProjectUser\ProjectUser;
 use App\Models\Task\Task;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,6 +24,10 @@ class Project extends Model
         'description',
         'status',
         'due_date',
+    ];
+
+    protected $casts = [
+        'due_date' => 'date',
     ];
 
     /**
@@ -58,5 +63,22 @@ class Project extends Model
     public function labels(): HasMany
     {
         return $this->hasMany(Label::class);
+    }
+
+    public function scopeByStatus(Builder $query, string $status): Builder
+    {
+        return $query->where('status', $status);
+    }
+
+    public function scopeByOwner(Builder $query, int $ownerId): Builder
+    {
+        return $query->where('owner_id', $ownerId);
+    }
+
+    public function scopeByMember(Builder $query, int $userId): Builder
+    {
+        return $query->whereHas('members', function ($q) use ($userId) {
+            $q->where('users.id', $userId);
+        });
     }
 }
