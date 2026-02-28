@@ -44,6 +44,10 @@ class ProjectService
         });
     }
 
+    public function showProject(Project $project) {
+        return $project->load('owner', 'members', 'tasks');
+    }
+
     public function updateProject(Project $project, array $data): Project {
         return DB::transaction(function () use ($project, $data) {
             $project->update($data);
@@ -58,7 +62,6 @@ class ProjectService
                     ];
                 }
 
-                // Always keep the owner as manager
                 $syncData[$project->owner_id] = [
                     'role'      => 'manager',
                     'joined_at' => $project->members()
@@ -71,5 +74,21 @@ class ProjectService
 
             return $project->fresh(['owner', 'members']);
         });
+    }
+
+    public function getTrashedProjects() {
+        return Project::onlyTrashed()
+                        ->with('owner', 'members')
+                        ->withCount('tasks')
+                        ->paginate(15);
+    }
+
+    public function restoreProject(Project $project) {
+        $project->restore();
+        return $project->fresh(['owner', 'members']);
+    }
+
+    public function forceDeleteProject(Project $project): void{
+        $project->forceDelete();
     }
 }

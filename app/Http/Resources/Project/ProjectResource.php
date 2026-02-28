@@ -24,6 +24,7 @@ class ProjectResource extends JsonResource
             'owner' => new UserResource($this->whenLoaded('owner')),
             'members' => UserResource::collection($this->whenLoaded('members')),
             'tasks_count' => $this->whenCounted('tasks'),
+            'tasks' => $this->whenLoaded('tasks'),
             'created_at' => $this->created_at->toDateTimeString(),
         ];
     }

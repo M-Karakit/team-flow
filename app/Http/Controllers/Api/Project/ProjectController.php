@@ -47,9 +47,13 @@ class ProjectController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Project $project)
     {
-        //
+        $project = $this->projectService->showProject($project);
+
+        return response()->json([
+            'data' => new ProjectResource($project),
+        ]);
     }
 
     /**
@@ -69,8 +73,27 @@ class ProjectController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Project $project)
     {
-        //
+        $project->delete();
+        return response()->json([], 204);
+    }
+
+    public function listTrashedProjects() {
+        $projects = $this->projectService->getTrashedProjects();
+        return ProjectResource::collection($projects);
+    }
+
+    public function restoreProject(Project $project) {
+        $project = $this->projectService->restoreProject($project);
+        return response()->json([
+            'message' => 'Project restored successfully',
+            'data' => new ProjectResource($project),
+        ]);
+    }
+
+    public function forceDeleteProject(Project $project) {
+        $this->projectService->forceDeleteProject($project);
+        return response()->json([], 204);
     }
 }
