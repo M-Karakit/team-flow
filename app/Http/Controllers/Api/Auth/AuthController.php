@@ -46,7 +46,9 @@ class AuthController extends Controller
 
     public function logout() {
         JWTAuth::invalidate(JWTAuth::getToken());
-        return response()->json([], 204);
+        return response()
+        ->json([], 204)
+        ->header('Clear-Site-Data', '"cache", "cookies", "storage"');
     }
 
     public function refresh() {

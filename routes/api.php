@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Project\MemberController;
 use App\Http\Controllers\Api\Project\ProjectController;
+use App\Http\Controllers\Api\Task\TaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,14 @@ Route::prefix('v1')->group(function () {
             Route::post('/', [MemberController::class, 'assignMember']);
             Route::put('/{user}', [MemberController::class, 'updateRole']);
             Route::delete('/{user}', [MemberController::class, 'removeMember']);
+        });
+
+        Route::prefix('projects/{project}/tasks')->group(function () {
+            Route::get('/', [TaskController::class, 'index']);
+            Route::post('/', [TaskController::class, 'store']);
+            Route::get('/{task}', [TaskController::class, 'show']);
+            Route::put('/{task}', [TaskController::class, 'update']);
+            Route::delete('/{task}', [TaskController::class, 'destroy']);
         });
     });
 });

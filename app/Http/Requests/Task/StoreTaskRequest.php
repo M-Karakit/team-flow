@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Project;
+namespace App\Http\Requests\Task;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StoreProjectRequest extends FormRequest
+class StoreTaskRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -16,17 +16,18 @@ class StoreProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'assigned_to' => ['nullable', 'integer', 'exists:users,id'],
+            'title'       => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'status' => ['nullable', 'string', 'in:active,on_hold,archived'],
-            'due_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:today'],
+            'priority'    => ['nullable', 'in:low,medium,high,critical'],
+            'due_date'    => ['nullable', 'date_format:Y-m-d', 'after_or_equal:today'],
         ];
     }
 
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
-            'message' => 'Store project validation failed',
+            'message' => 'Store task validation failed',
             'errors' => $validator->errors(),
         ], 422));
     }
