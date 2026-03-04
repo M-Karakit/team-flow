@@ -8,6 +8,7 @@ use App\Models\Label\Label;
 use App\Models\LabelTask\LabelTask;
 use App\Models\Project\Project;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -79,5 +80,39 @@ class Task extends Model
         return $this->belongsToMany(Label::class, 'label_task')
             ->using(LabelTask::class)
             ->withTimestamps();
+    }
+
+    public function scopeByAssignee (Builder $query, $userId): Builder {
+        return $query->where('assigned_to', $userId);
+    }
+
+    public function scopeByStatus(Builder $query, string $status): Builder {
+        return $query->where('status', $status);
+    }
+
+    public function scopeByPriority(Builder $query, string $priority): Builder {
+        return $query->where('priority', $priority);
+    }
+
+    public function scopeByDueDateRange(Builder $query, ?string $from, ?string $to) {
+        return $query
+            ->when($from, fn($q) => $q->where('due_date', '>=', $from))
+            ->when($to, fn($q) => $q->where('due_date', '<=', $to));
+    }
+
+    public function scopeOverDue(Builder $query)  {
+        return $query->whereDate('due_date', today())
+                ->where('status', '!=', 'done');
+    }
+
+    public function scopeDueToday(Builder $query)  {
+        return $query->whereDate('due_date', today());
+    }
+
+    public function scopeDueThisWeek(Builder $query): Builder {
+        return $query->whereBetween('due_date', [
+            now()->startOfWeek(),
+            now()->endOfWeek(),
+        ]);
     }
 }

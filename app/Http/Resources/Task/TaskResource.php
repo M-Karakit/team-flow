@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Task;
 
+use App\Http\Resources\Project\ProjectResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -27,6 +28,7 @@ class TaskResource extends JsonResource
             'order' => $this->order,
             'comments' => $this->whenLoaded('comments'),
             'attachments' => $this->whenLoaded('attachments'),
+            'project' => new ProjectResource($this->whenLoaded('project')),
         ];
     }
 }
