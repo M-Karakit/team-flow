@@ -64,6 +64,10 @@ class TaskService
         });
     }
 
+    public function getTask(Task $task) {
+        return $task->load('project', 'assignee', 'labels');
+    }
+
     public function updateTask(Task $task, array $data) {
         return DB::transaction(function () use ($task, $data) {
             $task->update($data);
@@ -74,5 +78,21 @@ class TaskService
 
             return $task->fresh(['assignee', 'labels']);
         });
+    }
+
+    public function getTrashedTasks(Project $project) {
+        return $project->tasks()
+                ->with('assignee', 'labels')
+                ->onlyTrashed()
+                ->paginate(15);
+    }
+
+    public function restoreTask(Task $task): Task {
+        $task->restore();
+        return $task->fresh(['assignee', 'labels', 'project']);
+    }
+
+    public function forceDeleteTask(Task $task): void {
+        $task->forceDelete();
     }
 }

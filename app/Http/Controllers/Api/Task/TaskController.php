@@ -49,9 +49,11 @@ class TaskController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Project $project, Task $task)
     {
-        //
+       $result = $this->taskService->getTask($task);
+
+       return response()->json(['task' => new TaskResource($result)]);
     }
 
     /**
@@ -72,8 +74,26 @@ class TaskController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Project $project, Task $task)
     {
-        //
+        $task->delete();
+
+        return response()->json([], 204);
+    }
+
+    public function listTrashedTasks(Project $project) {
+        $tasks = $this->taskService->getTrashedTasks($project);
+
+        return TaskResource::collection($tasks);
+    }
+
+    public function restore(Project $project, Task $task) {
+        $restored = $this->taskService->restoreTask($task);
+        return new TaskResource($restored);
+    }
+
+    public function forceDelete(Project $project, Task $task) {
+        $this->taskService->forceDeleteTask($task);
+        return response()->json([], 204);
     }
 }

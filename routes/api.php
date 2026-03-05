@@ -35,9 +35,12 @@ Route::prefix('v1')->group(function () {
         Route::prefix('projects/{project}/tasks')->group(function () {
             Route::get('/', [TaskController::class, 'index']);
             Route::post('/', [TaskController::class, 'store']);
+            Route::get('/trashed', [TaskController::class, 'listTrashedTasks']);
             Route::get('/{task}', [TaskController::class, 'show']);
             Route::put('/{task}', [TaskController::class, 'update']);
             Route::delete('/{task}', [TaskController::class, 'destroy']);
+            Route::post('/{task}/restore', [TaskController::class, 'restore'])->withTrashed();
+            Route::delete('/{task}/force-delete', [TaskController::class, 'forceDelete'])->withTrashed();
         });
     });
 });
