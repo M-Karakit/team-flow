@@ -9,6 +9,7 @@ use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Http\Resources\Project\ProjectResource;
 use App\Models\Project\Project;
 use App\Services\Project\ProjectService;
+use Illuminate\Support\Facades\Gate;
 
 class ProjectController extends Controller
 {
@@ -24,6 +25,8 @@ class ProjectController extends Controller
      */
     public function index(FilterRequest $request)
     {
+        Gate::authorize('viewAny', Project::class);
+
         $filters = $request->validated();
         $projects = $this->projectService->listProjects($filters);
 
@@ -35,6 +38,7 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request)
     {
+        Gate::authorize('create', Project::class);
         $data = $request->validated();
         $project = $this->projectService->createProject($data);
 
@@ -49,6 +53,8 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
+        Gate::authorize('view', $project);
+
         $project = $this->projectService->showProject($project);
 
         return response()->json([
@@ -61,6 +67,8 @@ class ProjectController extends Controller
      */
     public function update(UpdateProjectRequest $request, Project $project)
     {
+        Gate::authorize('update', $project);
+
         $data = $request->validated();
         $updatedProject = $this->projectService->updateProject($project, $data);
 
@@ -75,6 +83,8 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
+        Gate::authorize('delete', $project);
+
         $project->delete();
         return response()->json([], 204);
     }
@@ -85,6 +95,8 @@ class ProjectController extends Controller
     }
 
     public function restoreProject(Project $project) {
+        Gate::authorize('restore', $project);
+
         $project = $this->projectService->restoreProject($project);
         return response()->json([
             'message' => 'Project restored successfully',
@@ -93,6 +105,8 @@ class ProjectController extends Controller
     }
 
     public function forceDeleteProject(Project $project) {
+        Gate::authorize('forceDelete', $project);
+
         $this->projectService->forceDeleteProject($project);
         return response()->json([], 204);
     }
