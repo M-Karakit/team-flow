@@ -10,6 +10,8 @@ use App\Http\Resources\Task\TaskResource;
 use App\Models\Project\Project;
 use App\Models\Task\Task;
 use App\Services\Task\TaskService;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {
@@ -36,9 +38,11 @@ class TaskController extends Controller
      */
     public function store(StoreTaskRequest $request, Project $project)
     {
+        Gate::authorize('create', [Task::class, $project]);
+
         $data = $request->validated();
 
-        $result = $this->taskService->createTask($project, $data);
+        $result = $this->taskService->createTask($project, $data, auth('api')->user());
 
         return response()->json([
             'message' => 'Task created successfully',
@@ -51,6 +55,9 @@ class TaskController extends Controller
      */
     public function show(Project $project, Task $task)
     {
+       $this->ensureTaskBelongsToProject($project, $task);
+       Gate::authorize('view', $task);
+
        $result = $this->taskService->getTask($task);
 
        return response()->json(['task' => new TaskResource($result)]);
@@ -61,9 +68,12 @@ class TaskController extends Controller
      */
     public function update(UpdateTaskRequest $request, Project $project, Task $task)
     {
+        $this->ensureTaskBelongsToProject($project, $task);
+        Gate::authorize('update', $task);
+
         $data = $request->validated();
 
-        $result = $this->taskService->updateTask($task, $data);
+        $result = $this->taskService->updateTask($task, $data, auth('api')->user());
 
         return response()->json([
             'message' => 'Task updated successfully',
@@ -76,6 +86,8 @@ class TaskController extends Controller
      */
     public function destroy(Project $project, Task $task)
     {
+        Gate::authorize('delete', $task);
+
         $task->delete();
 
         return response()->json([], 204);
@@ -88,12 +100,22 @@ class TaskController extends Controller
     }
 
     public function restore(Project $project, Task $task) {
+        Gate::authorize('restore', $task);
         $restored = $this->taskService->restoreTask($task);
         return new TaskResource($restored);
     }
 
     public function forceDelete(Project $project, Task $task) {
+
+        Gate::authorize('forceDelete', $task);
         $this->taskService->forceDeleteTask($task);
         return response()->json([], 204);
+    }
+
+    private function ensureTaskBelongsToProject(Project $project, Task $task): void
+    {
+        if ($task->project_id !== $project->id) {
+            abort(404, 'Task does not belong to this project.');
+        }
     }
 }

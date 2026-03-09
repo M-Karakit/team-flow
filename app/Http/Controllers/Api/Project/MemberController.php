@@ -23,12 +23,12 @@ class MemberController extends Controller
     }
 
     public function assignMember(AssignMemberRequest $request, Project $project) {
-        $this->memberService->assignMember($project, $request->user_id, $request->role);
+        $this->memberService->assignMember($project, $request->user_id, $request->role, auth('api')->user());
         return response()->json(['message' => 'Member assigned successfully.']);
     }
 
     public function updateRole(UpdateRoleRequest $request, Project $project, User $user) {
-        $this->memberService->updateRole($project, $user, $request->role);
+        $this->memberService->updateRole($project, $user, $request->role, auth('api')->user());
         return response()->json(['message' => 'Member role updated successfully.']);
     }
 

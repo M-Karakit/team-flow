@@ -4,6 +4,7 @@ namespace App\Services\Task;
 
 use App\Models\Project\Project;
 use App\Models\Task\Task;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -47,7 +48,11 @@ class TaskService
     }
 
 
-    public function createTask(Project $project, array $data) {
+    public function createTask(Project $project, array $data, User $authUser) {
+        if (!empty($data['assigned_to'])) {
+            $this->validateAssignee($project, $data['assigned_to'], $authUser);
+        }
+
         return DB::transaction(function () use ($project, $data) {
             $lastOrder = $project->tasks()->max('order') ?? 0;
 
@@ -68,7 +73,16 @@ class TaskService
         return $task->load('project', 'assignee', 'labels');
     }
 
-    public function updateTask(Task $task, array $data) {
+    public function updateTask(Task $task, array $data, User $authUser) {
+
+        if (!empty($data['assigned_to']) && $data['assigned_to'] !== $task->assigned_to) {
+            $this->validateAssignee($task->project, $data['assigned_to'], $authUser);
+        }
+
+        if (!$authUser->can('edit any task') && !$authUser->can('edit assigned task')) {
+            $data = array_intersect_key($data, ['status' => '']);
+        }
+
         return DB::transaction(function () use ($task, $data) {
             $task->update($data);
 
@@ -94,5 +108,27 @@ class TaskService
 
     public function forceDeleteTask(Task $task): void {
         $task->forceDelete();
+    }
+
+    private function validateAssignee(Project $project, int $assigneeId, User $authUser): void {
+        $assignee = $project->members()->where('user_id', $assigneeId)->first();
+
+        if (!$assignee) {
+            throw new \Exception('You can only assign tasks to project members.');
+        }
+
+        $roleHierarchy = [
+            'admin'       => 4,
+            'manager'     => 3,
+            'team-leader' => 2,
+            'member'      => 1,
+        ];
+
+        $authUserLevel   = $roleHierarchy[$authUser->getRoleNames()->first()] ?? 0;
+        $assigneeLevel   = $roleHierarchy[$assignee->getRoleNames()->first()] ?? 0;
+
+        if (!$authUser->hasRole('admin') && $assigneeLevel >= $authUserLevel) {
+            throw new \Exception('You cannot assign tasks to users with equal or higher roles.');
+        }
     }
 }

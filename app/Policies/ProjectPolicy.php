@@ -81,6 +81,13 @@ class ProjectPolicy
         : Response::denyWithStatus(403, 'You do not have permission to restore project');
     }
 
+    public function viewTrashed(User $user): Response
+    {
+        return $user->hasRole('admin') || $user->can('view trashed projects')
+        ? Response::allow()
+        : Response::denyWithStatus(403, 'You do not have permission to view trashed projects');
+    }
+
     /**
      * Determine whether the user can permanently delete the model.
      */
