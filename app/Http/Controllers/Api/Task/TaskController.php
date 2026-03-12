@@ -11,7 +11,6 @@ use App\Models\Project\Project;
 use App\Models\Task\Task;
 use App\Services\Task\TaskService;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {

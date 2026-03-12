@@ -4,12 +4,8 @@ use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Project\MemberController;
 use App\Http\Controllers\Api\Project\ProjectController;
 use App\Http\Controllers\Api\Task\TaskController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
 
 Route::prefix('v1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -42,5 +38,9 @@ Route::prefix('v1')->group(function () {
             Route::post('/{task}/restore', [TaskController::class, 'restore'])->withTrashed();
             Route::delete('/{task}/force-delete', [TaskController::class, 'forceDelete'])->withTrashed();
         });
+
+        Route::get('profile', [ProfileController::class, 'show']);
+        Route::post('profile', [ProfileController::class, 'update']);
+        Route::delete('profile/avatar', [ProfileController::class, 'deleteAvatar']);
     });
 });
