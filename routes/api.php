@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Label\LabelController;
 use App\Http\Controllers\Api\Project\MemberController;
 use App\Http\Controllers\Api\Project\ProjectController;
 use App\Http\Controllers\Api\Task\TaskController;
@@ -42,5 +43,11 @@ Route::prefix('v1')->group(function () {
         Route::get('profile', [ProfileController::class, 'show']);
         Route::post('profile', [ProfileController::class, 'update']);
         Route::delete('profile/avatar', [ProfileController::class, 'deleteAvatar']);
+
+        Route::prefix('project/{project}')->group(function () {
+            Route::apiResource('labels', LabelController::class);
+            Route::post('tasks/{task}/labels', [LabelController::class, 'attachToTask']);
+            Route::delete('tasks/{task}/labels/{label}', [LabelController::class, 'detachFromTask']);
+        });
     });
 });

@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Label\Label;
 use App\Models\Project\Project;
+use App\Models\Task\Task;
+use App\Policies\LabelPolicy;
 use App\Policies\ProjectPolicy;
+use App\Policies\TaskPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,5 +27,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(Project::class, ProjectPolicy::class);
+        Gate::policy(Task::class, TaskPolicy::class);
+        Gate::policy(Label::class, LabelPolicy::class);
     }
 }

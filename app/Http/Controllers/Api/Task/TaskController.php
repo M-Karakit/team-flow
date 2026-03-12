@@ -10,10 +10,13 @@ use App\Http\Resources\Task\TaskResource;
 use App\Models\Project\Project;
 use App\Models\Task\Task;
 use App\Services\Task\TaskService;
+use App\Traits\EnsuresBelongsToProject;
 use Illuminate\Support\Facades\Gate;
 
 class TaskController extends Controller
 {
+    use EnsuresBelongsToProject;
+
     public $taskService;
 
     public function __construct(TaskService $taskService) {
@@ -109,12 +112,5 @@ class TaskController extends Controller
         Gate::authorize('forceDelete', $task);
         $this->taskService->forceDeleteTask($task);
         return response()->json([], 204);
-    }
-
-    private function ensureTaskBelongsToProject(Project $project, Task $task): void
-    {
-        if ($task->project_id !== $project->id) {
-            abort(404, 'Task does not belong to this project.');
-        }
     }
 }
