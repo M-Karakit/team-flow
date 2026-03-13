@@ -5,9 +5,11 @@ namespace App\Providers;
 use App\Models\Label\Label;
 use App\Models\Project\Project;
 use App\Models\Task\Task;
+use App\Policies\CommentPolicy;
 use App\Policies\LabelPolicy;
 use App\Policies\ProjectPolicy;
 use App\Policies\TaskPolicy;
+use Dom\Comment;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -29,5 +31,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Project::class, ProjectPolicy::class);
         Gate::policy(Task::class, TaskPolicy::class);
         Gate::policy(Label::class, LabelPolicy::class);
+        Gate::policy(Comment::class, CommentPolicy::class);
     }
 }

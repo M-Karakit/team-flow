@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Comment\CommentController;
 use App\Http\Controllers\Api\Label\LabelController;
 use App\Http\Controllers\Api\Project\MemberController;
 use App\Http\Controllers\Api\Project\ProjectController;
@@ -48,6 +49,15 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('labels', LabelController::class);
             Route::post('tasks/{task}/labels', [LabelController::class, 'attachToTask']);
             Route::delete('tasks/{task}/labels/{label}', [LabelController::class, 'detachFromTask']);
+
+            Route::get('comments', [CommentController::class, 'projectComments']);
+            Route::post('comments', [CommentController::class, 'storeOnProject']);
+
+            Route::get('tasks/{task}/comments', [CommentController::class, 'taskComments']);
+            Route::post('tasks/{task}/comments', [CommentController::class, 'storeOnTask']);
         });
+
+        Route::put('comments/{comment}',  [CommentController::class, 'update']);
+        Route::delete('comments/{comment}', [CommentController::class, 'destroy']);
     });
 });
