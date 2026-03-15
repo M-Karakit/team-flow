@@ -17,6 +17,8 @@ class AuthService
                 'password' => Hash::make($data['password']),
             ]);
 
+            $user->assignRole('member');
+
             return $user;
     }
 

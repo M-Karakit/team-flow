@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Attachment\Attachment;
 use App\Models\Label\Label;
 use App\Models\Project\Project;
 use App\Models\Task\Task;
+use App\Policies\AttachmentPolicy;
 use App\Policies\CommentPolicy;
 use App\Policies\LabelPolicy;
 use App\Policies\ProjectPolicy;
@@ -32,5 +34,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Task::class, TaskPolicy::class);
         Gate::policy(Label::class, LabelPolicy::class);
         Gate::policy(Comment::class, CommentPolicy::class);
+        Gate::policy(Attachment::class, AttachmentPolicy::class);
     }
 }

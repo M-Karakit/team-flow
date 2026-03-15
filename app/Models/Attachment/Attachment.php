@@ -13,8 +13,6 @@ class Attachment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'attachable_type',
-        'attachable_id',
         'uploaded_by',
         'file_path',
         'file_name',
@@ -33,7 +31,7 @@ class Attachment extends Model
     /**
      * The user who uploaded this attachment.
      */
-    public function uploader(): BelongsTo
+    public function uploadedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by');
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models\Project;
 
+use App\Models\Attachment\Attachment;
 use App\Models\Comment\Comment;
 use App\Models\Label\Label;
 use App\Models\ProjectUser\ProjectUser;
@@ -62,6 +63,11 @@ class Project extends Model
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');
+    }
+
+    public function attachments(): MorphMany
+    {
+        return $this->morphMany(Attachment::class, 'attachable');
     }
 
     /**
