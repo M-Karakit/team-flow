@@ -9,6 +9,7 @@ use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Http\Resources\Project\ProjectResource;
 use App\Models\Project\Project;
 use App\Services\Project\ProjectService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 
 class ProjectController extends Controller
@@ -78,6 +79,18 @@ class ProjectController extends Controller
         ]);
     }
 
+    public function stats(Project $project) {
+        Gate::authorize('view', $project);
+
+        $start = microtime(true);
+
+        $stats = $this->projectService->getProjectStats($project);
+
+        $time = round((microtime(true) - $start) * 1000, 2);
+
+        return response()->json(['stats' => $stats, 'query-time-ms' => $time]);
+    }
+
     /**
      * Remove the specified resource from storage.
      */
@@ -86,6 +99,7 @@ class ProjectController extends Controller
         Gate::authorize('delete', $project);
 
         $project->delete();
+        Cache::tags(["user." . auth('api')->id() . ".projects"])->flush();
         return response()->json([], 204);
     }
 

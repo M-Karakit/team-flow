@@ -3,27 +3,37 @@
 namespace App\Services\Project;
 
 use App\Events\ProjectCreated;
+use App\Helper\CacheKey;
 use App\Models\Project\Project;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class ProjectService
 {
     public function listProjects(array $filters = []) {
-        $query = Project::query()->with('owner', 'members')->withCount('tasks');
+        $cacheKey = CacheKey::userProjects(auth('api')->id()) . ':' . md5(json_encode($filters));
 
-        if (!empty($filters['status'])) {
-            $query->byStatus($filters['status']);
-        }
+        return Cache::remember($cacheKey, 3600, function () use ($filters) {
+            $query = Project::query()
+                            ->with(['owner', 'members'])
+                            ->withCount('tasks');
 
-        if (!empty($filters['owner_id'])) {
-            $query->byOwner($filters['owner_id']);
-        }
+            $query = Project::query()->with('owner', 'members')->withCount('tasks');
 
-        if (!empty($filters['member_id'])) {
-            $query->byMember($filters['member_id']);
-        }
+            if (!empty($filters['status'])) {
+                $query->byStatus($filters['status']);
+            }
 
-        return $query->paginate($filters['per_page'] ?? 15);
+            if (!empty($filters['owner_id'])) {
+                $query->byOwner($filters['owner_id']);
+            }
+
+            if (!empty($filters['member_id'])) {
+                $query->byMember($filters['member_id']);
+            }
+
+            return $query->paginate($filters['per_page'] ?? 15);
+        });
     }
 
     public function createProject(array $data) {
@@ -40,6 +50,8 @@ class ProjectService
                 'role' => 'manager',
                 'joined_at' => now(),
             ]);
+
+            Cache::tags(["user." . auth('api')->id() . ".projects"])->flush();
 
             event(new ProjectCreated($project, auth('api')->user()));
 
@@ -73,9 +85,29 @@ class ProjectService
                 ];
 
                 $project->members()->sync($syncData);
+
             }
 
+            Cache::tags(["user." . auth('api')->id() . ".projects"])->flush();
+            Cache::forget(CacheKey::projectStats($project->id));
+
             return $project->fresh(['owner', 'members']);
+        });
+    }
+
+    public function getProjectStats(Project $project): array {
+        $cacheKey = CacheKey::projectStats($project->id);
+
+        return Cache::remember($cacheKey, 3600, function () use ($project) {
+            return [
+                'total_tasks'   => $project->tasks()->count(),
+                'todo'          => $project->tasks()->byStatus('todo')->count(),
+                'in_progress'   => $project->tasks()->byStatus('in_progress')->count(),
+                'in_review'     => $project->tasks()->byStatus('in_review')->count(),
+                'done'          => $project->tasks()->byStatus('done')->count(),
+                'overdue'       => $project->tasks()->overdue()->count(),
+                'total_members' => $project->members()->count(),
+            ];
         });
     }
 

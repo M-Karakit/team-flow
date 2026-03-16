@@ -22,6 +22,7 @@ Route::prefix('v1')->group(function () {
 
         Route::apiResource('projects', ProjectController::class);
         Route::get('projects-trashed', [ProjectController::class, 'listTrashedProjects']);
+        Route::get('projects/{project}/stats', [ProjectController::class, 'stats']);
         Route::post('project-restore/{project}', [ProjectController::class, 'restoreProject'])->withTrashed();
         Route::delete('projects-force-delete/{project}', [ProjectController::class, 'forceDeleteProject']);
 
