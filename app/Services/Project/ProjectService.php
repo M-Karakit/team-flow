@@ -5,7 +5,6 @@ namespace App\Services\Project;
 use App\Events\ProjectCreated;
 use App\Models\Project\Project;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class ProjectService
 {
@@ -37,16 +36,12 @@ class ProjectService
                 'due_date' => $data['due_date'] ?? null,
             ]);
 
-            Log::info('About to fire ProjectCreated event', ['project_id' => $project->id]);
-
             $project->members()->attach(auth('api')->id(), [
                 'role' => 'manager',
                 'joined_at' => now(),
             ]);
 
             event(new ProjectCreated($project, auth('api')->user()));
-
-            Log::info('ProjectCreated event fired');
 
             return $project;
         });

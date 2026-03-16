@@ -3,13 +3,11 @@
 namespace App\Services\Task;
 
 use App\Events\TaskAssigned;
-use App\Listeners\NotifyTaskAssignee;
 use App\Models\Project\Project;
 use App\Models\Task\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class TaskService
 {
@@ -69,17 +67,12 @@ class TaskService
                 'due_date' => $data['due_date'] ?? null,
                 'order' => $lastOrder + 1,
             ]);
-            Log::info('About to fire TaskAssigned event', [
-            'task_id'     => $task->id,
-            'assigned_to' => $task->assigned_to,
-        ]);
 
             if ($task->assigned_to) {
-                $task->load('assignee'); // ✅ make sure relation is loaded
+                $task->load('assignee');
 
-                if ($task->assignee) { // ✅ double check it's not null
+                if ($task->assignee) {
                     event(new TaskAssigned($task, $task->assignee));
-                    Log::info('TaskAssigned event fired');
                 }
             }
 

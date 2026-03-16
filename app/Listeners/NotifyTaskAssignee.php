@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\TaskAssigned;
+use App\Notifications\TaskAssignedNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
@@ -23,10 +24,9 @@ class NotifyTaskAssignee
     public function handle(TaskAssigned $event): void
     {
         try {
-            Log::info('NotifyTaskAssignee fired', [
-                'task_id'  => $event->task->id,
-                'assignee' => $event->assignee?->id,
-            ]);
+            $event->assignee->notify(
+                new TaskAssignedNotification($event->task)
+            );
         } catch (\Exception $e) {
             Log::error('NotifyTaskAssignee failed: ' . $e->getMessage());
         }

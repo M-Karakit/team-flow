@@ -4,6 +4,8 @@ namespace App\Services\Project;
 
 use App\Models\Project\Project;
 use App\Models\User;
+use App\Notifications\AddedToProjectNotification;
+use Illuminate\Support\Facades\Log;
 
 use function Symfony\Component\Clock\now;
 
@@ -23,6 +25,12 @@ class MemberService
             'role' => $role ?? 'member',
             'joined_at' => now()
         ]);
+
+        try {
+            $newMember->notify(new AddedToProjectNotification($project));
+        } catch (\Exception $e) {
+            Log::error('Add to project notification failed: ' . $e->getMessage());
+        }
     }
 
     public function updateRole(Project $project, User $user, $newRole, User $authUser) {
