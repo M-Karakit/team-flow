@@ -3,15 +3,17 @@
 namespace App\Providers;
 
 use App\Models\Attachment\Attachment;
+use App\Models\Comment\Comment;
 use App\Models\Label\Label;
 use App\Models\Project\Project;
 use App\Models\Task\Task;
+use App\Observers\ProjectObserver;
+use App\Observers\TaskObserver;
 use App\Policies\AttachmentPolicy;
 use App\Policies\CommentPolicy;
 use App\Policies\LabelPolicy;
 use App\Policies\ProjectPolicy;
 use App\Policies\TaskPolicy;
-use Dom\Comment;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -35,5 +37,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Label::class, LabelPolicy::class);
         Gate::policy(Comment::class, CommentPolicy::class);
         Gate::policy(Attachment::class, AttachmentPolicy::class);
+
+        Project::observe(ProjectObserver::class);
+        Task::observe(TaskObserver::class);
     }
 }

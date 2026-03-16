@@ -32,6 +32,13 @@ class Task extends Model
         'order',
     ];
 
+    protected $casts = [
+        'assigned_to' => 'integer',
+        'created_by'  => 'integer',
+        'project_id'  => 'integer',
+        'due_date'    => 'date',
+    ];
+
     /**
      * The project this task belongs to.
      */
