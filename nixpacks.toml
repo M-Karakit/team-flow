@@ -1,5 +1,13 @@
+cat nixpacks.toml
+```
+
+Should show exactly:
+```
 [phases.setup]
 nixPkgs = ["php84", "php84Extensions.pdo", "php84Extensions.pdo_mysql", "php84Extensions.redis", "php84Extensions.mbstring", "php84Extensions.xml", "php84Extensions.curl", "php84Extensions.zip", "php84Extensions.gd", "composer"]
+
+[variables]
+PHP_VERSION = "8.4"
 
 [phases.build]
 cmds = [
