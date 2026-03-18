@@ -5,6 +5,7 @@ namespace App\Models\Label;
 use App\Models\LabelTask\LabelTask;
 use App\Models\Project\Project;
 use App\Models\Task\Task;
+use Database\Factories\LabelFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +14,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Label extends Model
 {
     use HasFactory;
+
+    protected static function newFactory(): LabelFactory
+    {
+        return LabelFactory::new();
+    }
 
     protected $fillable = [
         'project_id',

@@ -8,6 +8,7 @@ use App\Models\Label\Label;
 use App\Models\LabelTask\LabelTask;
 use App\Models\Project\Project;
 use App\Models\User;
+use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +20,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Task extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected static function newFactory(): TaskFactory
+    {
+        return TaskFactory::new(); 
+    }
 
     protected $fillable = [
         'project_id',

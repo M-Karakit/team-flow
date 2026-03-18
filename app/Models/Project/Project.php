@@ -8,6 +8,7 @@ use App\Models\Label\Label;
 use App\Models\ProjectUser\ProjectUser;
 use App\Models\Task\Task;
 use App\Models\User;
+use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +21,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Project extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected static function newFactory(): ProjectFactory
+    {
+        return ProjectFactory::new();
+    }
 
     protected $fillable = [
         'owner_id',
