@@ -1,6 +1,6 @@
 FROM php:8.4-cli
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libzip-dev \
     zip \
-    unzip
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
@@ -23,41 +24,24 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Copy project files
-COPY . .
+# Copy composer files first (better layer caching)
+COPY composer.json composer.lock ./
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-scripts
 
-# Generate optimized caches
-RUN php artisan config:clear && \
-    php artisan route:clear && \
-    php artisan view:clear
+# Copy the rest of the project
+COPY . .
+
+# Run composer scripts (post-install hooks)
+RUN composer run-script post-autoload-dump 2>/dev/null || true
 
 # Set permissions
-RUN chmod -R 777 /var/www/storage /var/www/bootstrap/cache
+RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Create entrypoint script
-RUN echo '#!/bin/bash\n\
-set -e\n\
-\n\
-# Cache config (needs runtime env vars)\n\
-php artisan config:cache\n\
-php artisan route:cache\n\
-php artisan view:cache\n\
-\n\
-# Create storage link if not exists\n\
-php artisan storage:link 2>/dev/null || true\n\
-\n\
-# Run migrations\n\
-php artisan migrate --force\n\
-\n\
-# Seed database (skip if already seeded)\n\
-php artisan db:seed --force 2>/dev/null || true\n\
-\n\
-# Start the server\n\
-exec php artisan serve --host=0.0.0.0 --port=${PORT:-8000}\n\
-' > /var/www/entrypoint.sh && chmod +x /var/www/entrypoint.sh
+# Copy and set permissions for entrypoint
+COPY docker/entrypoint.sh /var/www/entrypoint.sh
+RUN chmod +x /var/www/entrypoint.sh
 
 EXPOSE 8000
 

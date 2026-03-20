@@ -49,7 +49,8 @@ class SecurityMiddleware
                 'max-age=31536000; includeSubDomains; preload'
             );
 
-            if (!$request->secure()) {
+            // Skip HTTPS redirect for health check routes (Railway sends HTTP internally)
+            if (!$request->secure() && !$request->is('up', 'health-check')) {
                 return redirect()->secure($request->getRequestUri());
             }
         }
