@@ -39,13 +39,13 @@ class RolesAndPermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'api']);
+            Permission::findOrCreate($permission, 'api');
         }
 
-        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'api']);
+        $adminRole = Role::findOrCreate('admin', 'api');
         $adminRole->syncPermissions(Permission::all());
 
-        $managerRole = Role::firstOrCreate(['name' => 'manager', 'guard_name' => 'api']);
+        $managerRole = Role::findOrCreate('manager', 'api');
         $managerRole->syncPermissions([
             'create projects',
             'edit projects',
@@ -62,7 +62,7 @@ class RolesAndPermissionSeeder extends Seeder
             'view reports',
         ]);
 
-        $teamLeaderRole = Role::firstOrCreate(['name' => 'team-leader', 'guard_name' => 'api']);
+        $teamLeaderRole = Role::findOrCreate('team-leader', 'api');
         $teamLeaderRole->syncPermissions([
             'edit projects',
             'view projects',
@@ -75,7 +75,7 @@ class RolesAndPermissionSeeder extends Seeder
             'upload attachments',
         ]);
 
-        $memberRole = Role::firstOrCreate(['name' => 'member', 'guard_name' => 'api']);
+        $memberRole = Role::findOrCreate('member', 'api');
         $memberRole->syncPermissions([
             'view projects',
             'create tasks',
