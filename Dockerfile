@@ -41,8 +41,9 @@ RUN composer dump-autoload --optimize
 # Install Node dependencies and build assets
 RUN npm install && npm run build
 
-# Expose port
-EXPOSE 8080
+# Railway provides PORT dynamically
+ENV PORT=8080
+EXPOSE ${PORT}
 
-# Start command
-CMD php artisan migrate --force && php artisan db:seed --force && php -S 0.0.0.0:8080 -t public
+# Start command (Railway overrides this via railway.toml startCommand)
+CMD php artisan migrate --force && php artisan db:seed --force && php -S 0.0.0.0:${PORT} -t public
