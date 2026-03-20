@@ -30,6 +30,10 @@ COPY composer.json composer.lock ./
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-scripts
 
+# Cache bust to force Railway to build a fresh image
+ARG CACHEBUST=1
+ENV CACHEBUST=2026-03-20_23-00
+
 # Copy the rest of the project
 COPY . .
 
