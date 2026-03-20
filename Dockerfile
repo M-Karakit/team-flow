@@ -1,49 +1,41 @@
-FROM php:8.4-cli
+FROM php:8.4-fpm
 
-# Install system dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
-    libzip-dev \
-    libcurl4-openssl-dev \
-    libicu-dev \
     zip \
-    unzip \
-    nodejs \
-    npm \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip intl \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    unzip
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+
+# Install Redis extension
+RUN pecl install redis && docker-php-ext-enable redis
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
-WORKDIR /app
+WORKDIR /var/www
 
-# Copy composer files first for better caching
-COPY composer.json composer.lock ./
-
-# Install PHP dependencies
-RUN composer install --optimize-autoloader --no-scripts --no-interaction --no-dev
-
-# Copy the rest of the application
+# Copy project files
 COPY . .
 
-# Run post-install scripts
-RUN composer dump-autoload --optimize
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader
 
-# Install Node dependencies and build assets
-RUN npm install && npm run build
+# Set permissions
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-# Railway provides PORT dynamically
-ENV PORT=8080
-EXPOSE ${PORT}
+# Build commands
+RUN php artisan config:cache
+RUN php artisan route:cache
+RUN php artisan storage:link
 
-# Start command (Railway overrides this via railway.toml startCommand)
-CMD php artisan migrate --force && php artisan db:seed --force && php -S 0.0.0.0:${PORT} -t public
+EXPOSE 8000
+
+CMD php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=8000
