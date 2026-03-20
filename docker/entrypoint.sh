@@ -15,9 +15,13 @@ php artisan storage:link 2>/dev/null || true
 echo "Running migrations..."
 php artisan migrate --force || true
 
-# Seed database (skip if already seeded or fails)
-echo "Running seeders..."
-php artisan db:seed --force 2>/dev/null || true
+# Seed database only if explicitly requested
+if [ "${SEED_ON_DEPLOY}" = "true" ]; then
+    echo "Running seeders..."
+    php artisan db:seed --force 2>/dev/null || true
+else
+    echo "Skipping seeders (set SEED_ON_DEPLOY=true to run)"
+fi
 
 echo "Starting server on port ${PORT:-8000}..."
 

@@ -39,14 +39,14 @@ class RolesAndPermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission, 'guard_name' => 'api']);
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'api']);
         }
 
-        $adminRole = Role::create(['name' => 'admin', 'guard_name' => 'api']);
-        $adminRole->givePermissionTo(Permission::all());
+        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'api']);
+        $adminRole->syncPermissions(Permission::all());
 
-        $managerRole = Role::create(['name' => 'manager', 'guard_name' => 'api']);
-        $managerRole->givePermissionTo([
+        $managerRole = Role::firstOrCreate(['name' => 'manager', 'guard_name' => 'api']);
+        $managerRole->syncPermissions([
             'create projects',
             'edit projects',
             'delete projects',
@@ -62,8 +62,8 @@ class RolesAndPermissionSeeder extends Seeder
             'view reports',
         ]);
 
-        $teamLeaderRole = Role::create(['name' => 'team-leader', 'guard_name' => 'api']);
-        $teamLeaderRole->givePermissionTo([
+        $teamLeaderRole = Role::firstOrCreate(['name' => 'team-leader', 'guard_name' => 'api']);
+        $teamLeaderRole->syncPermissions([
             'edit projects',
             'view projects',
             'add members',
@@ -75,8 +75,8 @@ class RolesAndPermissionSeeder extends Seeder
             'upload attachments',
         ]);
 
-        $memberRole = Role::create(['name' => 'member', 'guard_name' => 'api']);
-        $memberRole->givePermissionTo([
+        $memberRole = Role::firstOrCreate(['name' => 'member', 'guard_name' => 'api']);
+        $memberRole->syncPermissions([
             'view projects',
             'create tasks',
             'edit assigned task',
