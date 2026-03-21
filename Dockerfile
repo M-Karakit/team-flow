@@ -47,6 +47,6 @@ RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 COPY docker/entrypoint.sh /var/www/entrypoint.sh
 RUN chmod +x /var/www/entrypoint.sh
 
-EXPOSE 8000
+EXPOSE $PORT
 
 CMD ["/var/www/entrypoint.sh"]
