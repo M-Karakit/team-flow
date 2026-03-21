@@ -11,6 +11,9 @@ php artisan view:cache || true
 # Create storage link if not exists
 php artisan storage:link 2>/dev/null || true
 
+# Fix permissions for runtime-generated cache files so www-data can read/write them
+chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+
 # Run migrations
 echo "Running migrations..."
 php artisan migrate --force || true
@@ -23,7 +26,12 @@ else
     echo "Skipping seeders (set SEED_ON_DEPLOY=true to run)"
 fi
 
-echo "Starting server on port ${PORT:-8000}..."
+echo "Setting up Apache port..."
+PORT=${PORT:-80}
+sed -i "s/Listen 80/Listen ${PORT}/g" /etc/apache2/ports.conf
+sed -i "s/<VirtualHost \*:80>/<VirtualHost \*:${PORT}>/g" /etc/apache2/sites-available/000-default.conf
 
-# Start the server — exec replaces the shell so PHP is PID 1
-exec php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
+echo "Starting server with Apache on port ${PORT}..."
+
+# Start Apache in the foreground correctly
+exec apache2-foreground
