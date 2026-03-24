@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('owner_id')->constrained('users')->cascadeOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->enum('status', ['active', 'on_hold', 'archived'])->default('active');
+            $table->string('status')->default('active');
             $table->date('due_date')->nullable();
             $table->timestamps();
             $table->softDeletes();

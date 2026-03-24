@@ -18,8 +18,8 @@ return new class extends Migration
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->enum('status', ['todo', 'in_progress', 'in_review', 'done'])->default('todo');
-            $table->enum('priority', ['low', 'medium', 'high', 'critical'])->default('medium');
+            $table->string('status')->default('todo');
+            $table->string('priority')->default('medium');
             $table->date('due_date')->nullable();
             $table->integer('order')->default(0);
             $table->timestamps();
