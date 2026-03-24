@@ -3,9 +3,7 @@ NIXPACKS_PHP_VERSION = "8.4"
 
 [phases.build]
 cmds = [
-    "composer install --no-dev --optimize-autoloader --ignore-platform-reqs",
-    "php artisan config:clear",
-    "php artisan cache:clear"
+    "composer install --no-dev --optimize-autoloader --ignore-platform-reqs"
 ]
 
 [start]
