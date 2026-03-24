@@ -3,8 +3,9 @@ NIXPACKS_PHP_VERSION = "8.4"
 
 [phases.build]
 cmds = [
-    "composer install --no-dev --optimize-autoloader --ignore-platform-reqs"
+    "composer install --no-dev --optimize-autoloader --ignore-platform-reqs",
+    "npm install mysql2"
 ]
 
 [start]
-cmd = "php artisan config:cache && php artisan migrate --force && node /assets/scripts/prestart.mjs /assets/nginx.template.conf /nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"
+cmd = "node ./fix_db.mjs && php artisan config:cache && php artisan migrate --force && node /assets/scripts/prestart.mjs /assets/nginx.template.conf /nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"
