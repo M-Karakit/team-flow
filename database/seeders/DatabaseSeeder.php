@@ -23,32 +23,40 @@ class DatabaseSeeder extends Seeder
         $this->call(RolesAndPermissionSeeder::class);
 
         // Fixed users — easy to login with
-        $admin = User::firstOrCreate([
-            'name'     => 'Admin User',
-            'email'    => 'admin@teamflow.com',
-            'password' => bcrypt('password'),
-        ]);
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@teamflow.com'],
+            [
+                'name'     => 'Admin User',
+                'password' => bcrypt('password'),
+            ]
+        );
         $admin->assignRole('admin');
 
-        $manager = User::firstOrCreate([
-            'name'     => 'Manager User',
-            'email'    => 'manager@teamflow.com',
-            'password' => bcrypt('password'),
-        ]);
+        $manager = User::firstOrCreate(
+            ['email' => 'manager@teamflow.com'],
+            [
+                'name'     => 'Manager User',
+                'password' => bcrypt('password'),
+            ]
+        );
         $manager->assignRole('manager');
 
-        $teamLeader = User::firstOrCreate([
-            'name'     => 'Team Leader User',
-            'email'    => 'teamleader@teamflow.com',
-            'password' => bcrypt('password'),
-        ]);
+        $teamLeader = User::firstOrCreate(
+            ['email' => 'teamleader@teamflow.com'],
+            [
+                'name'     => 'Team Leader User',
+                'password' => bcrypt('password'),
+            ]
+        );
         $teamLeader->assignRole('team-leader');
 
-        $member = User::firstOrCreate([
-            'name'     => 'Member User',
-            'email'    => 'member@teamflow.com',
-            'password' => bcrypt('password'),
-        ]);
+        $member = User::firstOrCreate(
+            ['email' => 'member@teamflow.com'],
+            [
+                'name'     => 'Member User',
+                'password' => bcrypt('password'),
+            ]
+        );
         $member->assignRole('member');
 
         // Extra random members
